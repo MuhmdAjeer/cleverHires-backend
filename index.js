@@ -8,6 +8,8 @@ const {errorHandler} = require('./Middlewares/errorHandler')
 const db = require('./config/connection');
 const { connect : connectDB ,get} = require('./config/connection');
 
+const userRouter = require('./router/user')
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -22,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended : false }));
 
 
-
+app.use('/api/v1/user',userRouter);
 
 // error handler middleware
 app.use(errorHandler)

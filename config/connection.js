@@ -7,12 +7,15 @@ const state = {
 }
 module.exports = {
 
-    connect : ()=>{
-        MongoClient.connect(URL).then(connection => {
+    connect : async()=>{
+        
+        try {
+            const connection = await MongoClient.connect(URL);
+            state.db = connection.db(DB_NAME);
             console.log('DB connected');
-            state.db = connection.db(DB_NAME)
-        })
-        .catch(err => console.log(err))
+        } catch (error) {
+            console.log(error);
+        }
     },
 
     get : ()=>{
