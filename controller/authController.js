@@ -1,13 +1,11 @@
 const asyncHandler = require('express-async-handler');
-const { validationResult } = require('express-validator')
-const TWILIO_ACCOUNT_ID = process.env.TWILIO_ACCOUNT_ID;
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const client = require('twilio')(TWILIO_ACCOUNT_ID);
+const { validationResult, body } = require('express-validator')
 const bcrypt = require('bcrypt')
 
+const { sendOtp, verifyOtp } = require('../utils/nodemailer')
 const { generateToken } = require('../utils/jwt')
 const db = require('../config/connection')
-
+const { findByEmail, insertUser, findById } = require('../database/user');
 
 module.exports = {
     signup: asyncHandler(async (req, res) => {
@@ -18,55 +16,79 @@ module.exports = {
             return res.json({ errors: errors.array() })
         }
 
-        const { email, password, phone } = req.body;
-        const user = await db.get().collection('user').findOne({ email })
+        const { email } = req.body;
+        const { password, ...body } = req.body;
+
+        const user = await findByEmail(email)
 
         if (user) {
             res.status(401)
             throw new Error('User already exists')
         }
+        try {
+            await sendOtp(email)
+            res.status(200).json({
+                status: 'Ok',
+                message: 'OTP send successfully',
+                user: body
+            })
+        } catch (err) {
+            res.status(500)
+            throw new Error('Cannot send OTP! try again')
+        }
 
-        client.verify
-            .services(process.env.TWILIO_SERVICE_ID)
-            .verifications.create({
-                to: `+91${phone}`,
-                channel: 'sms'
-            })
-            .then(({ status }) => {
-                res.status(200).json({ status, user: req.body })
-            })
-            .catch(err => {
-                res.status(500)
-                throw new Error(err)
-            })
 
     }),
 
     verifyOtp: asyncHandler(async (req, res) => {
+        try{
         const { otp, user } = req.body;
-        console.log(req.body);
         if (!otp || !user) {
             res.status(401)
             throw new Error('provide credentials')
         }
 
-        let otpStatus = null;
-        client.verify
-            .services(process.env.TWILIO_SERVICE_ID)
-            .verificationChecks.create({
-                to: `+91${user.phone}`,
-                code: otp
-            })
-            .then(({ status }) => otpStatus = status)
-            .catch((err) => {
-                res.status(500)
-                throw new Error(err)
-            })
+            await verifyOtp(user.email, otp)
+            const {insertedId} = await insertUser(user);
+            const {password,...userDetails} = await findById(insertedId)
 
-        if (otpStatus != 'approved') {
-            res.status(400)
-            throw new Error('Wrong OTP')
+            let response = {
+                token : (generateToken({email:userDetails.email,id:user._id})),
+                user : userDetails
+            }
+
+            res.status(201).json(response)
+        } catch (error) {
+            res.status(455)
+            throw new Error(error)
         }
+        console.log('sdf');
+
+    }),
+
+    signin: asyncHandler(async (req, res) => {
+        const { email, password } = req.body;
+        console.log('sdfsd');
+
+        const user = await db.get().collection('user').findOne({ email });
+        console.log(user, 'jj');
+        if (!user) {
+            res.status(404)
+            throw new Error('User not found')
+        }
+        console.log(password, user.password, 'fsdafsadfsd');
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordCorrect) {
+            res.status(401)
+            throw new Error('Invalid Password')
+        }
+
+        
+        const token = generateToken({email:user.email,id:user._id})
+        console.log(token,'imtoken');
+        res.status(200).json({ token, user })
+
 
     })
 }

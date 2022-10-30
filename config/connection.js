@@ -1,14 +1,14 @@
-const {MongoClient} = require('mongodb')
+const { MongoClient } = require('mongodb')
 const URL = process.env.DB_URI
 
-const {DB_NAME} = require('./constants')
+const { DB_NAME } = require('./constants')
 const state = {
-    db : null
+    db: null
 }
 module.exports = {
 
-    connect : async()=>{
-        
+    connect: async () => {
+
         try {
             const connection = await MongoClient.connect(URL);
             state.db = connection.db(DB_NAME);
@@ -18,7 +18,7 @@ module.exports = {
         }
     },
 
-    get : ()=>{
+    get: () => {
         return state.db
     }
 }

@@ -1,5 +1,6 @@
 const {check} = require('express-validator')
 
+
 module.exports = {
     validateSignup : [
         check('email')
@@ -21,7 +22,6 @@ module.exports = {
         .exists().withMessage("phone cant be blank")
         .isNumeric().withMessage('only numbers are allowed')
         .isLength({min:10,max:10}).withMessage('Provide a valid phone number')
-
 
     ]
 }

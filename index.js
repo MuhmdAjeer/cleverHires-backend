@@ -3,12 +3,14 @@ const app = express();
 const logger = require('morgan');
 const dotenv = require('dotenv').config();
 const cors = require('cors');
+const otp = require('./utils/nodemailer')
 
 const {errorHandler} = require('./Middlewares/errorHandler')
 const db = require('./config/connection');
 const { connect : connectDB ,get} = require('./config/connection');
 
-const userRouter = require('./router/user')
+const userRouter = require('./router/user');
+const nodemailer = require('./utils/nodemailer');
 
 
 const PORT = process.env.PORT || 5000;
@@ -23,6 +25,11 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended : false }));
 
+
+app.get('/',(req,res)=>{
+    nodemailer.sendOtp('muhdajeer@gmail.com')
+    res.send('send')
+})
 
 app.use('/api/v1/user',userRouter);
 
