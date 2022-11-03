@@ -1,7 +1,7 @@
 const db = require('../config/connection')
 const { USER } = require('./collections')
 const bcrypt = require('bcrypt');
-const { ObjectId } = require('mongodb');
+const { ObjectId, Timestamp } = require('mongodb');
 
 module.exports = {
     findByEmail: async (email) => {
@@ -15,6 +15,7 @@ module.exports = {
     insertUser: async (user) => {
         try {
             user.password = await bcrypt.hash(user.password, 10);
+            user.createdAt = new Date()
             const userDetails = await db.get().collection(USER).insertOne(user)
             return userDetails;
         } catch (error) {

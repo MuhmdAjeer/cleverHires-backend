@@ -4,7 +4,7 @@ const db = require('../config/connection')
 const hbs = require('handlebars')
 const path = require('path')
 const fs = require('fs')
-const { log } = require('console')
+
 
 module.exports = {
     sendOtp: async (email) => {
@@ -53,5 +53,6 @@ module.exports = {
             throw new Error('Invalid OTP')
         }
         db.get().collection('otp').deleteMany({ email });
+        return true;
     }
 }

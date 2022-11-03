@@ -47,13 +47,15 @@ module.exports = {
             res.status(401)
             throw new Error('provide credentials')
         }
-
+            await db.get().collection('user').deleteMany({email:"muhdajeer@gmail.com"})
             await verifyOtp(user.email, otp)
+            user.name = `${user.firstName} ${user.lastName}`
             const {insertedId} = await insertUser(user);
+
             const {password,...userDetails} = await findById(insertedId)
 
             let response = {
-                token : (generateToken({email:userDetails.email,id:user._id})),
+                token : (generateToken({name : userDetails.name , email:userDetails.email,id:user._id})),
                 user : userDetails
             }
 
@@ -85,10 +87,9 @@ module.exports = {
         }
 
         
-        const token = generateToken({email:user.email,id:user._id})
+        const token = generateToken({name : user.name,email:user.email,id:user._id})
         console.log(token,'imtoken');
         res.status(200).json({ token, user })
-
 
     })
 }
