@@ -41,22 +41,22 @@ module.exports = {
     }),
 
     verifyOtp: asyncHandler(async (req, res) => {
-        try{
-        const { otp, user } = req.body;
-        if (!otp || !user) {
-            res.status(401)
-            throw new Error('provide credentials')
-        }
-            await db.get().collection('user').deleteMany({email:"muhdajeer@gmail.com"})
+        try {
+            const { otp, user } = req.body;
+            if (!otp || !user) {
+                res.status(401)
+                throw new Error('provide credentials')
+            }
+            await db.get().collection('user').deleteMany({ email: "muhdajeer@gmail.com" })
             await verifyOtp(user.email, otp)
             user.name = `${user.firstName} ${user.lastName}`
-            const {insertedId} = await insertUser(user);
+            const { insertedId } = await insertUser(user);
 
-            const {password,...userDetails} = await findById(insertedId)
+            const { password, ...userDetails } = await findById(insertedId)
 
             let response = {
-                token : (generateToken({name : userDetails.name , email:userDetails.email,id:user._id})),
-                user : userDetails
+                token: (generateToken({ name: userDetails.name, email: userDetails.email, id: user._id })),
+                user: userDetails
             }
 
             res.status(201).json(response)
@@ -69,27 +69,33 @@ module.exports = {
     }),
 
     signin: asyncHandler(async (req, res) => {
-        const { email, password } = req.body;
-        console.log('sdfsd');
 
-        const user = await db.get().collection('user').findOne({ email });
-        console.log(user, 'jj');
-        if (!user) {
-            res.status(404)
-            throw new Error('User not found')
+        try {
+
+            const { email, password } = req.body;
+            console.log('sdfsd');
+
+            const user = await db.get().collection('user').findOne({ email });
+            console.log(user, 'jj');
+            if (!user) {
+                res.status(404)
+                throw new Error('User not found')
+            }
+            console.log(password, user.password, 'fsdafsadfsd');
+            const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+            if (!isPasswordCorrect) {
+                res.status(401)
+                throw new Error('Invalid Password')
+            }
+
+
+            const token = generateToken({ name: user.name, email: user.email, id: user._id })
+            console.log(token, 'imtoken');
+            res.status(200).json({ token, user })
+        } catch (error) {
+            res.status(500).json(error)
         }
-        console.log(password, user.password, 'fsdafsadfsd');
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordCorrect) {
-            res.status(401)
-            throw new Error('Invalid Password')
-        }
-
-        
-        const token = generateToken({name : user.name,email:user.email,id:user._id})
-        console.log(token,'imtoken');
-        res.status(200).json({ token, user })
 
     })
 }
