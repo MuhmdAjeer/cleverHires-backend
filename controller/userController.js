@@ -1,5 +1,5 @@
 const { cloudinary } = require("../utils/cloudinary");
-const { uploadPost, getPosts } = require("../database/user");
+const { uploadPost, getPosts, findById } = require("../database/user");
 const { ObjectId } = require("mongodb");
 
 exports.uploadPost = async (req, res) => {
@@ -27,15 +27,15 @@ exports.uploadPost = async (req, res) => {
     res.status(500).json({
       message: "Post upload failed",
     });
-    console.log(error);
   }
 };
 
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await getPosts();
+    console.log(posts,'fffdfd');
     res.status(200).json(posts);
   } catch (error) {
-    res.status(500);
+    res.status(500).json({error})
   }
 };

@@ -9,44 +9,59 @@ exports.findByEmail = async (email) => {
 };
 
 exports.insertUser = async (user) => {
-  user.password = await bcrypt.hash(user.password, 10);
-  user.createdAt = new Date();
-  const userDetails = await db.get().collection(USER).insertOne(user);
-  return userDetails;
+  try {
+    user.password = await bcrypt.hash(user.password, 10);
+    user.createdAt = new Date();
+    const userDetails = await db.get().collection(USER).insertOne(user);
+    return userDetails;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.findById = async (id) => {
-  const user = await db
-    .get()
-    .collection(USER)
-    .findOne({ _id: ObjectId(id) });
-  return user;
+  try {
+    const user = await db
+      .get()
+      .collection(USER)
+      .findOne({ _id: ObjectId(id) });
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.uploadPost = async (post) => {
-  const postId = await db.get().collection(POST).insertOne(post);
-  return postId;
+  try {
+    const postId = await db.get().collection(POST).insertOne(post);
+    return postId;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.getPosts = async () => {
-  const posts = await db
-    .get()
-    .collection(POST)
-    .aggregate([
-      {
-        $lookup: {
-          from: USER,
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
+  try {
+    const posts = await db
+      .get()
+      .collection(POST)
+      .aggregate([
+        {
+          $lookup: {
+            from: USER,
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
         },
-      },
-      {
-        $unwind: "$user",
-      },
-    ])
-    .toArray();
-  console.log(posts);
-  // posts.forEach((post) => console.log());
-  return posts;
+        {
+          $unwind: "$user",
+        },
+      ])
+      .sort({postedAt:-1})
+      .toArray()
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
 };

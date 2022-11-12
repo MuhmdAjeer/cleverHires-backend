@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 5000;
 //connecting database
 connectDB();
 
+app.disable("etag");
 app.use(cors());
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));

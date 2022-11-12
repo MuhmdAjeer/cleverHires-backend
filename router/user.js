@@ -12,6 +12,10 @@ router.post("/signin", signin);
 
 //Post
 router.route("/post").post(verify, uploadPost);
+
 router.route("/posts").get(getAllPosts);
+router.route('/p').get((req,res)=>{
+    res.json({name:'ajeer'})
+})
 
 module.exports = router;

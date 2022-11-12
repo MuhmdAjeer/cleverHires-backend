@@ -1,7 +1,11 @@
 const router = require("express").Router();
-const { createHirer } = require("../controller/jobController");
+const {
+  createHirer,
+  gethirer,
+  getHirer,
+} = require("../controller/jobController");
 const { verify } = require("../Middlewares/jwtVerification");
 
-router.post("/hirer", verify, createHirer);
+router.route("/hirer").post(verify, createHirer).get(verify, getHirer);
 
 module.exports = router;
