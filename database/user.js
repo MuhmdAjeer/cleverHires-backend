@@ -65,3 +65,41 @@ exports.getPosts = async () => {
     console.log(error);
   }
 };
+
+exports.likePost = async(userId,postId)=>{
+  try {
+    const result = await db.get().collection(POST)
+    .updateOne({_id : ObjectId(postId) },{
+      $push : {
+        likes :  ObjectId(userId)
+      }
+    })
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.dislikePost = async(userId,postId)=>{
+  try {
+    const result = await db.get().collection(POST)
+    .updateOne({_id : ObjectId(postId)},{
+      $pull : {
+        likes : ObjectId(userId)
+      }
+    })
+  } catch (error) {
+    
+  }
+}
+
+exports.getPost = async(postId,userId)=>{
+  try {
+    const post = await db.get().collection(POST)
+      .findOne({_id : ObjectId(postId),likes : ObjectId(userId)})
+      
+    return post
+  } catch (error) {
+    console.log(error);   
+  }
+}

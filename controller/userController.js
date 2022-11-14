@@ -1,5 +1,5 @@
 const { cloudinary } = require("../utils/cloudinary");
-const { uploadPost, getPosts, findById } = require("../database/user");
+const { uploadPost, getPosts, findById, likePost, getPost, dislikePost } = require("../database/user");
 const { ObjectId } = require("mongodb");
 
 exports.uploadPost = async (req, res) => {
@@ -33,9 +33,33 @@ exports.uploadPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await getPosts();
-    console.log(posts,'fffdfd');
     res.status(200).json(posts);
   } catch (error) {
-    res.status(500).json({error})
+    res.status(500).json({ error })
   }
 };
+
+exports.likePost = async (req, res) => {
+  try {
+    const {postId} = req.body;
+    try {
+      //get post collection and if liked unlike else dislike
+      const liked = await getPost(postId,req.user.id)
+      console.log(liked);
+
+      if(!liked){
+        const result = await likePost(req.user.id,postId)
+        return res.status(204).json({message :"Post liked successfully"})
+      }else{
+        const result = await dislikePost(req.user.id,postId);
+        return res.status(204).json({message:"Post disliked"})
+      }
+
+
+    } catch (error) {
+      console.log(error);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
