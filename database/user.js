@@ -55,10 +55,37 @@ exports.getPosts = async () => {
           },
         },
         {
+          $lookup: {
+            from: USER,
+            localField: "comments.user",
+            foreignField: "_id",
+            as: 'commentedUsers'
+          }
+        },
+        {
+          $lookup: {
+            from: USER,
+            localField: "likes",
+            foreignField: '_id',
+            as: 'likedUsers'
+          }
+        },
+        {
+          $lookup: {
+            from: USER,
+            let: { userdd: '$likes' },
+            pipeline: [
+              { $match: { $expr: { $in: ['$_id', '$$userdd'] } } }
+            ],
+            as: 'liked_users'
+          }
+        },
+
+        {
           $unwind: "$user",
         },
       ])
-      .sort({postedAt:-1})
+      .sort({ postedAt: -1 })
       .toArray()
     return posts;
   } catch (error) {
@@ -66,40 +93,58 @@ exports.getPosts = async () => {
   }
 };
 
-exports.likePost = async(userId,postId)=>{
+exports.likePost = async (userId, postId) => {
   try {
     const result = await db.get().collection(POST)
-    .updateOne({_id : ObjectId(postId) },{
-      $push : {
-        likes :  ObjectId(userId)
-      }
-    })
+      .updateOne({ _id: ObjectId(postId) }, {
+        $push: {
+          likes: ObjectId(userId)
+        }
+      })
     return result;
   } catch (error) {
     console.log(error);
   }
 }
 
-exports.dislikePost = async(userId,postId)=>{
+exports.dislikePost = async (userId, postId) => {
   try {
     const result = await db.get().collection(POST)
-    .updateOne({_id : ObjectId(postId)},{
-      $pull : {
-        likes : ObjectId(userId)
-      }
-    })
+      .updateOne({ _id: ObjectId(postId) }, {
+        $pull: {
+          likes: ObjectId(userId)
+        }
+      })
   } catch (error) {
-    
+
   }
 }
 
-exports.getPost = async(postId,userId)=>{
+exports.getPost = async (postId, userId) => {
   try {
     const post = await db.get().collection(POST)
-      .findOne({_id : ObjectId(postId),likes : ObjectId(userId)})
-      
+      .findOne({ _id: ObjectId(postId), likes: ObjectId(userId) })
+
     return post
   } catch (error) {
-    console.log(error);   
+    console.log(error);
+  }
+}
+
+exports.uploadComment = async (comment, postId, userId) => {
+  try {
+    const result = await db.get().collection(POST)
+      .updateOne({ _id: ObjectId(postId) }, {
+        $push: {
+          comments: {
+            user: ObjectId(userId),
+            comment: comment,
+            commentedAt: Date.now()
+          }
+        }
+      })
+    return result;
+  } catch (error) {
+    console.log(error);
   }
 }

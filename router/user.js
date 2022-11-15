@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const { signup, verifyOtp, signin } = require("../controller/authController");
-const { uploadPost, getAllPosts , likePost} = require("../controller/userController");
+const { uploadPost, getAllPosts , likePost , addComment} = require("../controller/userController");
 const { verify } = require("../Middlewares/jwtVerification");
 const { validateSignup } = require("../Middlewares/validation");
 
@@ -16,6 +16,9 @@ router.route("/post")
 
 router.route('/post/like')
     .patch(verify,likePost)
+
+router.route('/post/comment')
+    .post(verify,addComment)
 
 router.route("/posts").get(getAllPosts);
 
