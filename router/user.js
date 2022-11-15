@@ -20,7 +20,8 @@ router.route('/post/like')
 router.route('/post/comment')
     .post(verify,addComment)
 
-router.route("/posts").get(getAllPosts);
+router.route("/posts")
+    .get(getAllPosts);
 
 
 module.exports = router;
