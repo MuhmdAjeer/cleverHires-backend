@@ -2,149 +2,115 @@ const db = require("../config/connection");
 const { USER, POST } = require("./collections");
 const bcrypt = require("bcrypt");
 const { ObjectId, Timestamp } = require("mongodb");
+const postModel = require("../model/postModel");
+const userModel = require("../model/userModel");
+
 
 exports.findByEmail = async (email) => {
-  const user = await db.get().collection(USER).findOne({ email: email });
-  return user;
+
+  return new Promise((resolve,reject)=>{
+    userModel.findOne({email})
+    .then(response=>resolve(response))
+    .catch(err=> reject(err))
+  })
+
 };
 
-exports.insertUser = async (user) => {
-  try {
+exports.insertUser =  (user) => {
+
+  return new Promise(async(resolve,reject)=>{
     user.password = await bcrypt.hash(user.password, 10);
-    user.createdAt = new Date();
-    const userDetails = await db.get().collection(USER).insertOne(user);
-    return userDetails;
-  } catch (error) {
-    console.log(error);
-  }
+    userModel.create(user)
+    .then(response=>resolve(response))
+    .catch(err=> reject(err))
+  })
+  
 };
 
 exports.findById = async (id) => {
-  try {
-    const user = await db
-      .get()
-      .collection(USER)
-      .findOne({ _id: ObjectId(id) });
-    return user;
-  } catch (error) {
-    console.log(error);
-  }
+
+  return new Promise((resolve,reject)=>{
+    userModel.findOne({_id : id})
+    .then((response)=> resolve(response))
+    .catch(err => reject(err))
+  })
+
 };
 
 exports.uploadPost = async (post) => {
-  try {
-    const postId = await db.get().collection(POST).insertOne(post);
-    return postId;
-  } catch (error) {
-    console.log(error);
-  }
+  
+  return new Promise((resolve,reject)=>{
+    postModel.create(post)
+    .then((response)=> resolve(response))
+    .catch(err => resolve(err))
+  })
+
 };
 
 exports.getPosts = async () => {
-  try {
-    const posts = await db
-      .get()
-      .collection(POST)
-      .aggregate([
-        {
-          $lookup: {
-            from: USER,
-            localField: "userId",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-          $lookup: {
-            from: USER,
-            localField: "comments.user",
-            foreignField: "_id",
-            as: 'commentedUsers'
-          }
-        },
-        {
-          $lookup: {
-            from: USER,
-            localField: "likes",
-            foreignField: '_id',
-            as: 'likedUsers'
-          }
-        },
-        {
-          $lookup: {
-            from: USER,
-            let: { userdd: '$likes' },
-            pipeline: [
-              { $match: { $expr: { $in: ['$_id', '$$userdd'] } } }
-            ],
-            as: 'liked_users'
-          }
-        },
 
-        {
-          $unwind: "$user",
-        },
-      ])
-      .sort({ postedAt: -1 })
-      .toArray()
-    return posts;
-  } catch (error) {
-    console.log(error);
-  }
+  return new Promise((resolve,reject)=>{
+    postModel.find()
+    .populate("user", { password: 0 })
+    .populate('comments.user', { password: 0 })
+    .sort({ createdAt: -1 })
+
+    .then((result)=> resolve(result))
+    .catch((err)=> reject(err))
+  })
+
 };
 
 exports.likePost = async (userId, postId) => {
-  try {
-    const result = await db.get().collection(POST)
-      .updateOne({ _id: ObjectId(postId) }, {
-        $push: {
-          likes: ObjectId(userId)
-        }
-      })
-    return result;
-  } catch (error) {
-    console.log(error);
-  }
+
+  return new Promise((resolve,reject)=>{
+    postModel.updateOne({_id : postId},{
+      $push : {
+        likes : userId
+      }
+    })
+    .then((result)=>resolve(result))
+    .catch((err)=>reject(err))
+  })
 }
 
 exports.dislikePost = async (userId, postId) => {
-  try {
-    const result = await db.get().collection(POST)
-      .updateOne({ _id: ObjectId(postId) }, {
-        $pull: {
-          likes: ObjectId(userId)
-        }
-      })
-  } catch (error) {
 
-  }
+  return new Promise((resolve,reject)=>{
+    postModel.updateOne({_id : postId},{
+      $pull : {
+        likes : userId
+      }
+    })
+    .then((response)=> resolve(response))
+    .catch(err => reject(err))
+  })
+
 }
 
-exports.getPost = async (postId, userId) => {
-  try {
-    const post = await db.get().collection(POST)
-      .findOne({ _id: ObjectId(postId), likes: ObjectId(userId) })
+exports.findIfPostLiked = async (postId, userId) => {
 
-    return post
-  } catch (error) {
-    console.log(error);
-  }
+  return new Promise((resolve,reject)=>{
+    postModel.findOne({ _id: postId, likes: userId })
+    .then((response)=> resolve(response))
+    .catch(err=> reject(err))
+  })
+
 }
 
 exports.uploadComment = async (comment, postId, userId) => {
-  try {
-    const result = await db.get().collection(POST)
-      .updateOne({ _id: ObjectId(postId) }, {
-        $push: {
-          comments: {
-            user: ObjectId(userId),
-            comment: comment,
-            commentedAt: Date.now()
-          }
+
+  return new Promise((resolve,reject)=>{
+    postModel.updateOne({_id : postId},{
+      $push : {
+        comments : {
+          user : userId,
+          comment : comment,
+          commentedAt : Date.now()
         }
-      })
-    return result;
-  } catch (error) {
-    console.log(error);
-  }
+      }
+    })
+    .then(response=> resolve(response))
+    .catch(err => reject(err))
+  })
 }

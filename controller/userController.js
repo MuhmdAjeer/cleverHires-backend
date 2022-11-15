@@ -1,31 +1,29 @@
 const { cloudinary } = require("../utils/cloudinary");
-const { uploadPost, getPosts, findById, likePost, getPost, dislikePost, uploadComment } = require("../database/user");
+const { uploadPost, getPosts, findById, likePost, findIfPostLiked, dislikePost, uploadComment } = require("../database/user");
 const { ObjectId } = require("mongodb");
+const PostModel = require('../model/postModel')
 
 exports.uploadPost = async (req, res) => {
-  // console.log(req.body);
+  
   const { image, description } = req.body;
   try {
-    console.log(req.user);
     //upload image to cloudinary
     const result = await cloudinary.uploader.upload(image, {
       upload_preset: "posts",
     });
 
     let post = {
-      userId: ObjectId(req.user.id),
+      user: ObjectId(req.user.id),
       imageUrl: result.url,
-      description,
-      comments: [],
-      likes: [],
-      postedAt: new Date(),
     };
-    let postId = await uploadPost(post);
-    console.log(postId);
+
+    let postId = await PostModel.create(post);
+
     res.status(201).json({ message: "Post Uploaded successfully" });
+
   } catch (error) {
     res.status(500).json({
-      message: "Post upload failed",
+      message: error.message,
     });
   }
 };
@@ -45,7 +43,7 @@ exports.likePost = async (req, res) => {
     const {postId} = req.body;
     try {
 
-      const liked = await getPost(postId,req.user.id)
+      const liked = await findIfPostLiked(postId,req.user.id)
       console.log(liked);
 
       if(!liked){

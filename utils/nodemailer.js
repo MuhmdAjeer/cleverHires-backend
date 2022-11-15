@@ -4,6 +4,7 @@ const db = require('../config/connection')
 const hbs = require('handlebars')
 const path = require('path')
 const fs = require('fs')
+const otpModel = require('../model/otpModel')
 
 
 module.exports = {
@@ -33,26 +34,23 @@ module.exports = {
                 throw err
             })
 
-        await db.get().collection('otp').insertOne({
-            email,
-            otp,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + 9000
-        })
+        await otpModel.create({email,otp,createdAt : Date.now()});
+        return;
 
     },
 
     verifyOtp: async (email, otp) => {
 
-        const [otpRecord] = await db.get().collection('otp').find({ email }).sort({ createdAt: -1 }).limit(1).toArray()
-        console.log(otpRecord);
+        const otpRecord = await otpModel.find({email}).sort({createdAt : -1}).limit(1).lean()
+        console.log({otpRecord});
         if (!otpRecord) {
             throw Error('Request for an otp first!')
         }
-        if (otp != otpRecord.otp) {
+        if (otp != otpRecord[0].otp) {
             throw new Error('Invalid OTP')
         }
-        db.get().collection('otp').deleteMany({ email });
+
+        await otpModel.deleteMany({email});
         return true;
     }
 }

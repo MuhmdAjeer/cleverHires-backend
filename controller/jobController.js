@@ -1,3 +1,4 @@
+const { LoggerLevel } = require("mongodb");
 const Jobs = require("../database/jobs");
 const User = require("../database/user");
 
@@ -10,22 +11,20 @@ exports.createHirer = async (req, res) => {
     const user = await User.findById(id);
     if (user.hiring) {
       return res.status(403).json({
-        message: "already applied to be a hirer",
+        message: "already  applied to be a hirer",
       });
     }
 
     await Jobs.createHirer(hirerDetails, id);
-
     res.status(201).json({ message: "Request to be a hirer has succesfully sended" });
-  } catch (error) {
 
+  } catch (error) {
     res.status(500);
   }
 };
 
 exports.getHirer = async (req, res) => {
   const { id } = req.user;
-
   try {
 
     const hirer = await User.findById(id);
@@ -59,10 +58,17 @@ exports.postJob = async (req, res) => {
         message: "Become a hirer to post job"
       })
     }
+
+
+
     let jobId;
+    req.body.hirer = hirer._id;
+
+    console.log(req.body);
     try {
-      jobId = await Jobs.uploadJob(req.body, hirer._id);
+      jobId = await Jobs.uploadJob(req.body);
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ err })
     }
 

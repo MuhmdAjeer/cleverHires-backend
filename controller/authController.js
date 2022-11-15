@@ -6,6 +6,7 @@ const { sendOtp, verifyOtp } = require("../utils/nodemailer");
 const { generateToken } = require("../utils/jwt");
 const db = require("../config/connection");
 const { findByEmail, insertUser, findById } = require("../database/user");
+const userModel = require("../model/userModel");
 
 module.exports = {
   signup: asyncHandler(async (req, res) => {
@@ -45,26 +46,29 @@ module.exports = {
         throw new Error("provide credentials");
       }
       await verifyOtp(user.email, otp);
-      user.name = `${user.firstName} ${user.lastName}`;
-      const { insertedId } = await insertUser(user);
 
-      const { password, ...userDetails } = await findById(insertedId);
+      user.name = `${user.firstName} ${user.lastName}`;
+      user.password = await bcrypt.hash(user.password,10);
+      // const { insertedId } = await insertUser(user);
+      const userDetails = await userModel.create(user);
+
+      // const { password, ...userDetails } = await findById(insertedId);
 
       let response = {
         token: generateToken({
           name: userDetails.name,
           email: userDetails.email,
-          id: user._id,
+          id: userDetails._id,
         }),
         user: userDetails,
       };
 
       res.status(201).json(response);
     } catch (error) {
+      console.log(error);
       res.status(455);
       throw new Error(error);
-    }
-    console.log("sdf");
+    };
   }),
 
   signin: asyncHandler(async (req, res) => {
@@ -72,7 +76,7 @@ module.exports = {
       const { email, password } = req.body;
       console.log("sdfsd");
 
-      const user = await db.get().collection("user").findOne({ email });
+      const user = await db.get().collection("users").findOne({ email });
       console.log(user, "jj");
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -80,9 +84,9 @@ module.exports = {
       console.log(password, user.password, "fsdafsadfsd");
       const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-      if (!isPasswordCorrect) {
-        return res.status(401).json({ message: "Invalid password" });
-      }
+      // if (!isPasswordCorrect) {
+      //   return res.status(401).json({ message: "Invalid password" });
+      // }
 
       const token = generateToken({
         name: user.name,

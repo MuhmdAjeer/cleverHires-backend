@@ -7,7 +7,7 @@ const otp = require("./utils/nodemailer");
 
 const { errorHandler } = require("./Middlewares/errorHandler");
 const db = require("./config/connection");
-const { connect: connectDB, get } = require("./config/connection");
+const { connect: connectDB, get ,connection} = require("./config/connection");
 
 const userRouter = require("./router/user");
 const jobsRouter = require("./router/jobs");
@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 5000;
 
 //connecting database
 connectDB();
+connection();
 
 app.disable("etag");
 app.use(cors());

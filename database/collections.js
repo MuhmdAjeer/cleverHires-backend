@@ -1,5 +1,5 @@
 module.exports = {
-    USER : 'user',
+    USER : 'users',
     OTP : 'otp',
     POST : 'posts',
     JOB : 'job'

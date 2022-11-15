@@ -1,3 +1,5 @@
+const mongoose = require('mongoose')
+// const AutoIncrement = require('mongoose-sequence')(mongoose);
 const { MongoClient } = require('mongodb')
 const URL = process.env.DB_URI
 
@@ -20,5 +22,15 @@ module.exports = {
 
     get: () => {
         return state.db
+    },
+    connection : () => {
+        mongoose.connect(URL,{
+            dbName : DB_NAME
+        })
+            .then(() => console.log('DB connected'))
+            .catch(err => console.log(err, 'DB error'))
     }
 }
+
+
+

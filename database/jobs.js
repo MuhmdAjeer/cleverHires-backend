@@ -2,36 +2,36 @@ const db = require("../config/connection");
 const { USER, POST, HIRER, JOB } = require("./collections");
 const bcrypt = require("bcrypt");
 const { ObjectId, Timestamp } = require("mongodb");
+const jobModel = require("../model/jobModel");
+const userModel = require("../model/userModel");
 
 module.exports = {
-
   //updaing user  document with hirer field
   createHirer: async (data, userId) => {
-    await db.get().collection(USER).updateOne(
-      { _id: ObjectId(userId) },
-      {
-        $set: {
-          hiring: {
-            approved: false,
-            ...data,
-          },
-        },
+    
+  return new Promise((resolve,reject)=>{
+    userModel.updateOne({_id : userId},{
+      $set : {
+        hiring : {
+          approved : false,
+          ...data
+        }
       }
-    );
+    })
+  })
+  .then((response)=> resolve(response))
+  .catch((err)=> reject(err))
   },
 
   //uploading a new job
-  uploadJob: async (jobDetails, hirerId) => {
-    try {
-      const jobId = await db.get().collection(JOB).insertOne({
-        hirer: ObjectId(hirerId),
-        ...jobDetails,
-        postedAt: Date.now()
-      })
-      return jobId.insertedId;
-    } catch (error) {
-      console.log(error);
-    }
+  uploadJob: async (jobDetails) => {
+
+    return new Promise((resolve,reject)=>{
+      jobModel.create(jobDetails)
+      .then((response)=>resolve(response))
+      .catch(err => reject(err))
+    })
+
   }
 
 };
