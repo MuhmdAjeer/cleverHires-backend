@@ -74,19 +74,18 @@ module.exports = {
   signin: asyncHandler(async (req, res) => {
     try {
       const { email, password } = req.body;
-      console.log("sdfsd");
 
-      const user = await db.get().collection("users").findOne({ email });
-      console.log(user, "jj");
+      const user = await userModel.findOne({ email });
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       console.log(password, user.password, "fsdafsadfsd");
       const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-      // if (!isPasswordCorrect) {
-      //   return res.status(401).json({ message: "Invalid password" });
-      // }
+      if (!isPasswordCorrect) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
 
       const token = generateToken({
         name: user.name,

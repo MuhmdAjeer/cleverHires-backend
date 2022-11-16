@@ -59,14 +59,13 @@ exports.postJob = async (req, res) => {
       })
     }
 
-
-
     let jobId;
     req.body.hirer = hirer._id;
 
     console.log(req.body);
     try {
       jobId = await Jobs.uploadJob(req.body);
+      console.log(jobId);
     } catch (error) {
       console.log(error);
       return res.status(500).json({ err })

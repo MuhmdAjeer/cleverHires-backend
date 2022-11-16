@@ -23,7 +23,7 @@ const jobModel = new schema({
         required : true
 
     },
-    workplaceType : {
+    workplace : {
         type : String,
         required : true
 
