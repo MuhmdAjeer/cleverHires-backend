@@ -3,11 +3,15 @@ const {
   createHirer,
   gethirer,
   getHirer,
-  postJob
+  postJob,
+  getJobs
 } = require("../controller/jobController");
 const { verify } = require("../Middlewares/jwtVerification");
 
-router.route('/').post(verify,postJob)
+router.route('/')
+  .post(verify,postJob)
+  .get(getJobs)
+
 
 router.route("/hirer").post(verify, createHirer).get(verify, getHirer);
 

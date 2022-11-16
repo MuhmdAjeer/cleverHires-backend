@@ -1,6 +1,7 @@
 const { LoggerLevel } = require("mongodb");
 const Jobs = require("../database/jobs");
 const User = require("../database/user");
+const jobModel = require("../model/jobModel");
 
 exports.createHirer = async (req, res) => {
   const { id } = req.user;
@@ -80,5 +81,25 @@ exports.postJob = async (req, res) => {
   } catch (error) {
     console.log('hello');
     res.status(500).json({ error: error.message })
+  }
+}
+
+exports.getJobs = async(req,res)=>{
+  try {
+
+    const jobs = await jobModel.find().populate('hirer');
+    
+    if(!jobs.length){
+      res.status(404).json({
+        status : 'failed',
+        message : "No jobs found"
+      })
+    }
+
+    res.status(200).json(jobs)
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message : error.message})
   }
 }
