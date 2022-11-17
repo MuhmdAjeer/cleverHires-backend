@@ -11,17 +11,14 @@ router.post("/verifyotp", verifyOtp);
 router.post("/signin", signin);
 
 //Post
-router.route("/post")
-    .post(verify, uploadPost)
-
-router.route('/post/like')
-    .patch(verify,likePost)
-
-router.route('/post/comment')
-    .post(verify,addComment)
-
 router.route("/posts")
+    .post(verify, uploadPost)
     .get(getAllPosts);
+
+
+router.patch('/posts/like',verify,likePost)
+router.post('/posts/comment',verify,addComment)
+
 
 
 module.exports = router;
