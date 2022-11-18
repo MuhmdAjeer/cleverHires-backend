@@ -1,3 +1,3 @@
 module.exports = {
-    DB_NAME : 'CleverHires'
+    DB_NAME: 'CleverHires',
 }

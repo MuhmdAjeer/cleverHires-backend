@@ -1,6 +1,6 @@
 module.exports = {
-    USER : 'users',
-    OTP : 'otp',
-    POST : 'posts',
-    JOB : 'job'
+    USER: 'users',
+    OTP: 'otp',
+    POST: 'posts',
+    JOB: 'job',
 }
