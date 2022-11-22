@@ -1,4 +1,5 @@
 const { LoggerLevel } = require('mongodb')
+const { isValidObjectId } = require('mongoose')
 const Jobs = require('../database/jobs')
 const User = require('../database/user')
 const jobModel = require('../model/jobModel')
@@ -88,10 +89,54 @@ exports.getJobs = async (req, res) => {
                 message: 'No jobs found',
             })
         }
-
+        
         res.status(200).json(jobs)
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: error.message })
+    }
+}
+
+exports.applyJob = async(req,res) => {
+    try {
+
+        const {jobId} = req.params
+        if(!isValidObjectId(jobId)) {
+            return res.status(400).json({
+                success : false,
+                message : 'Invalid Job Id'
+            })
+        }
+
+        console.log(req.body);
+        const { email,joiningTime,ctc,pdfUrl,phone } = req.body
+        const application = {
+            seeker : req.user.id,
+            email : email,
+            phone : phone,
+            joiningTime : joiningTime,
+            ctc : ctc,
+            resume : pdfUrl
+        }
+
+        const job =  await jobModel.findByIdAndUpdate('64353534423423',{
+            $push : {
+                applications : application
+            }
+        })
+
+        if(!job){
+            return res.status(404).json({
+                success : false,
+                message : "No job found!"
+            })
+        }
+
+        res.status(201).json({message : "Application success"})
+
+    } catch (error) {
+        res.status(500).json({
+            error : error.message
+        })
     }
 }

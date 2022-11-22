@@ -55,6 +55,26 @@ const jobModel = new schema(
             type: Number,
             required: true,
         },
+        applications : [
+            {
+                seeker : {
+                    type : ObjectId,
+                    required : true
+                },
+                email : {
+                    type : String
+                },
+                resume : {
+                    type : String
+                },
+                joiningTime : {
+                    type : String
+                },
+                ctc : {
+                    type : String
+                }
+            }
+        ]
     },
     { timestamps: true }
 )
