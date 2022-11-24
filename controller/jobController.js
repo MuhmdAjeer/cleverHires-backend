@@ -110,6 +110,7 @@ exports.applyJob = async(req,res) => {
 
         console.log(req.body);
         const { email,joiningTime,ctc,pdfUrl,phone } = req.body
+        
         const application = {
             seeker : req.user.id,
             email : email,
@@ -119,7 +120,7 @@ exports.applyJob = async(req,res) => {
             resume : pdfUrl
         }
 
-        const job =  await jobModel.findByIdAndUpdate('64353534423423',{
+        const job =  await jobModel.findByIdAndUpdate(jobId,{
             $push : {
                 applications : application
             }
