@@ -11,6 +11,7 @@ const {
 const { ObjectId } = require('mongodb')
 const PostModel = require('../model/postModel')
 const { isValidObjectId } = require('mongoose')
+const userModel = require('../model/userModel')
 
 exports.uploadPost = async (req, res) => {
     const { image, description } = req.body
@@ -103,6 +104,70 @@ exports.deletePost = async (req, res) => {
         res.status(500).json({
             status: failed,
             message: error.message,
+        })
+    }
+}
+
+exports.getAllUsers = async (req,res) => {
+    try {
+
+        const userId = req.user.id;
+        const user = await userModel.findById(userId)
+        const requested = user.requested;
+        console.log([userId,user]);
+
+        const users = await userModel.find({_id : {$nin : [userId,requested]}})
+
+        return res.status(200).json(users)
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success : false,
+            message : error.message
+        })
+    }
+}
+
+exports.followUser = async(req,res)=>{
+    try {
+        const followingId = req.params.id;
+        const userId = req.user.id;
+
+        const ifFollowed = await userModel.findOne({_id : followingId , following : userId});
+
+        if(ifFollowed){
+            await Promise.all([
+                userModel.updateOne({_id : userId},{
+                    $addToSet : {connections : followingId}
+                }),
+                userModel.updateOne({_id : followingId},{
+                    $addToSet : {connections : userId}
+                }),
+            ])
+
+            return res.status(201).json({
+                success : true
+            })
+        }
+
+
+        const result = await Promise.all([
+        userModel.updateOne({_id : userId},{
+            $addToSet : {following : followingId }
+        }),
+        userModel.updateOne({_id : followingId }, {
+            $addToSet : {followers : userId}
+        })])
+
+        res.status(201).json({
+            success : true,
+        })
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message : error.message
         })
     }
 }

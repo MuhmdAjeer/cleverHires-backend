@@ -1,6 +1,7 @@
 const { default: mongoose } = require('mongoose')
 
 const schema = require('mongoose').Schema
+const { ObjectId } = mongoose.Schema.Types
 
 const userModel = new schema(
     {
@@ -24,6 +25,21 @@ const userModel = new schema(
             type: Number,
             require: true,
         },
+        following : [{
+            type : ObjectId,
+            ref : 'users',
+            default : []
+        }],
+        followers : [{
+            type : ObjectId,
+            ref : 'users',
+            default : []
+        }],
+        connections : [{
+            type : ObjectId,
+            ref : 'users',
+            default : []
+        }]
     },
     { timestamps: true }
 )
