@@ -42,14 +42,17 @@ exports.uploadPost = async (post) => {
     })
 }
 
-exports.getPosts = async () => {
-    return new Promise((resolve, reject) => {
+exports.getFollowingPosts = async (userId) => {
+    return new Promise(async(resolve, reject) => {
+
+        const user = await userModel.findById(userId)
+        console.log(user.following);
+
         postModel
-            .find()
+            .find({user : {$in :[...user.following,userId]}})
             .populate('user', { password: 0 })
             .populate('comments.user', { password: 0 })
             .sort({ createdAt: -1 })
-
             .then((result) => resolve(result))
             .catch((err) => reject(err))
     })

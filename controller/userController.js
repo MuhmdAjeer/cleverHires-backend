@@ -1,7 +1,7 @@
 const { cloudinary } = require('../utils/cloudinary')
 const {
     uploadPost,
-    getPosts,
+    getFollowingPosts,
     findById,
     likePost,
     findIfPostLiked,
@@ -38,7 +38,8 @@ exports.uploadPost = async (req, res) => {
 
 exports.getAllPosts = async (req, res) => {
     try {
-        const posts = await getPosts()
+        const userId = req.user.id
+        const posts = await getFollowingPosts(userId)
         console.log(posts)
         res.status(200).json(posts)
     } catch (error) {
@@ -108,17 +109,127 @@ exports.deletePost = async (req, res) => {
     }
 }
 
-exports.getAllUsers = async (req,res) => {
+exports.getAllUsers = async (req, res) => {
     try {
 
         const userId = req.user.id;
         const user = await userModel.findById(userId)
         const requested = user.requested;
-        console.log([userId,user]);
+        console.log([userId, user]);
 
-        const users = await userModel.find({_id : {$nin : [userId,requested]}})
+        const users = await userModel.find({ _id: { $nin: [userId, requested] } })
 
         return res.status(200).json(users)
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+exports.followUser = async (req, res) => {
+    try {
+        const followingId = req.params.id;
+        const userId = req.user.id;
+
+        if (userId == followingId) {
+            return res.status(400).json({
+                message: "Cant follow yourself"
+            })
+        }
+
+        // const ifFollowed = await userModel.findOne({ _id: followingId, following: userId });
+
+        const sender = await userModel.findById(userId);
+        const reciever = await userModel.findById(followingId);
+
+        if (
+            reciever.followers.includes(sender._id) &&
+            sender.following.includes(reciever._id)
+        ) {
+            return res.status(400).json({
+                message: 'Already following'
+            })
+        }
+
+        const result = await Promise.all([
+            userModel.updateOne({ _id: userId }, {
+                $addToSet: { following: followingId }
+            }),
+            userModel.updateOne({ _id: followingId }, {
+                $addToSet: { followers: userId }
+            })])
+
+        res.status(201).json({
+            success: true,
+            message: "Followed"
+        })
+
+
+        // if (ifFollowed) {
+        //     await Promise.all([
+        //         userModel.updateOne({ _id: userId }, {
+        //             $addToSet: { connections: followingId }
+        //         }),
+        //         userModel.updateOne({ _id: followingId }, {
+        //             $addToSet: { connections: userId }
+        //         }),
+        //     ])
+
+        //     return res.status(201).json({
+        //         success: true
+        //     })
+        // }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: error.message
+        })
+    }
+}
+
+exports.unFollowUser = async (req, res) => {
+    try {
+
+        const unfollowingId = req.params.id;
+        const userId = req.user.id;
+
+        if(userId == unfollowingId){
+            console.log('//');
+            return res.status(400).json({
+                message : 'Cant unfollow yourself'
+            })
+        }
+
+        const sender = await userModel.findById(userId);
+        const reciever = await userModel.findById(unfollowingId);
+
+        if (
+            !reciever.followers.includes(sender._id) &&
+            !sender.following.includes(reciever._id)
+        ){
+            console.log('not following');
+            return res.status(400).json({
+                message : "Already not following"
+            })
+        }
+
+        await Promise.all([
+            userModel.updateOne({ _id: userId }, {
+                $pull: { following: unfollowingId }
+            }),
+            userModel.updateOne({ _id: unfollowingId }, {
+                $pull: { followers: userId }
+            })
+        ])
+
+        return res.status(200).json({
+            message : 'unfollow success'
+        })
+
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -128,46 +239,3 @@ exports.getAllUsers = async (req,res) => {
     }
 }
 
-exports.followUser = async(req,res)=>{
-    try {
-        const followingId = req.params.id;
-        const userId = req.user.id;
-
-        const ifFollowed = await userModel.findOne({_id : followingId , following : userId});
-
-        if(ifFollowed){
-            await Promise.all([
-                userModel.updateOne({_id : userId},{
-                    $addToSet : {connections : followingId}
-                }),
-                userModel.updateOne({_id : followingId},{
-                    $addToSet : {connections : userId}
-                }),
-            ])
-
-            return res.status(201).json({
-                success : true
-            })
-        }
-
-
-        const result = await Promise.all([
-        userModel.updateOne({_id : userId},{
-            $addToSet : {following : followingId }
-        }),
-        userModel.updateOne({_id : followingId }, {
-            $addToSet : {followers : userId}
-        })])
-
-        res.status(201).json({
-            success : true,
-        })
-
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            message : error.message
-        })
-    }
-}
