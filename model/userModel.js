@@ -39,6 +39,24 @@ const userModel = new schema(
             type : ObjectId,
             ref : 'users',
             default : []
+        }],
+        experiences : [{
+            companyName : {
+                type : String
+            },
+            title : {
+                type : String
+            },
+            location : {
+                type : String
+            },
+            startMonth : {
+                type : String
+            },
+            startYear : {
+                type : String
+            },
+            
         }]
     },
     { timestamps: true }

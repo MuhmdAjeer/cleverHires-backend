@@ -1,13 +1,5 @@
 const { cloudinary } = require('../utils/cloudinary')
-const {
-    uploadPost,
-    getFollowingPosts,
-    findById,
-    likePost,
-    findIfPostLiked,
-    dislikePost,
-    uploadComment,
-} = require('../database/user')
+const {uploadPost,getFollowingPosts,findById,likePost,findIfPostLiked,dislikePost,uploadComment,} = require('../database/user')
 const { ObjectId } = require('mongodb')
 const PostModel = require('../model/postModel')
 const { isValidObjectId } = require('mongoose')
@@ -167,22 +159,6 @@ exports.followUser = async (req, res) => {
             message: "Followed"
         })
 
-
-        // if (ifFollowed) {
-        //     await Promise.all([
-        //         userModel.updateOne({ _id: userId }, {
-        //             $addToSet: { connections: followingId }
-        //         }),
-        //         userModel.updateOne({ _id: followingId }, {
-        //             $addToSet: { connections: userId }
-        //         }),
-        //     ])
-
-        //     return res.status(201).json({
-        //         success: true
-        //     })
-        // }
-
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -197,10 +173,10 @@ exports.unFollowUser = async (req, res) => {
         const unfollowingId = req.params.id;
         const userId = req.user.id;
 
-        if(userId == unfollowingId){
+        if (userId == unfollowingId) {
             console.log('//');
             return res.status(400).json({
-                message : 'Cant unfollow yourself'
+                message: 'Cant unfollow yourself'
             })
         }
 
@@ -210,10 +186,10 @@ exports.unFollowUser = async (req, res) => {
         if (
             !reciever.followers.includes(sender._id) &&
             !sender.following.includes(reciever._id)
-        ){
+        ) {
             console.log('not following');
             return res.status(400).json({
-                message : "Already not following"
+                message: "Already not following"
             })
         }
 
@@ -227,15 +203,74 @@ exports.unFollowUser = async (req, res) => {
         ])
 
         return res.status(200).json({
-            message : 'unfollow success'
+            message: 'unfollow success'
         })
 
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            success : false,
-            message : error.message
+            success: false,
+            message: error.message
         })
     }
 }
 
+
+exports.addExperience = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { 
+            companyName, title, location,
+            startMonth, startYear, currentRole,
+            endMonth, endYear
+        } = req.body;
+
+
+        if(!companyName || !title || !location || !startMonth || !startYear  ){
+            return res.status(400).json({
+                message : 'Provide full credentials'
+            })
+        }
+
+        if(currentRole == false && (!endYear || !endMonth)){
+            return res.status(400).json({
+                message : 'Provide full credentials',
+                fields : ['endYear','endMonth']
+            })
+        }
+        const experience = {
+            companyName,
+            title,
+            location,
+            startMonth,
+            startYear,
+            currentRole,
+            endMonth,
+            endYear
+        }
+
+        const {matchedCount , modifiedCount } = await userModel.updateOne({ _id: userId }, {
+            $push: {
+                experiences: {
+                    experience
+                } 
+            }
+        })
+
+        if(!matchedCount || !modifiedCount){
+            return res.status(400).json({
+                message : 'Failed to add experience'
+            })
+        }
+
+        res.status(201).json({
+            message : 'Experience added successfully'
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            error : error.message
+        })
+    }
+}

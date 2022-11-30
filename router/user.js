@@ -1,7 +1,7 @@
 const router = require('express').Router()
 
 const { signup, verifyOtp, signin } = require('../controller/authController')
-const {uploadPost,getAllPosts,likePost,addComment,deletePost,getAllUsers, followUser,unFollowUser} = require('../controller/userController')
+const {uploadPost,getAllPosts,likePost,addComment,deletePost,getAllUsers, followUser,unFollowUser, addExperience} = require('../controller/userController')
 const { verify } = require('../Middlewares/jwtVerification')
 const { validateSignup } = require('../Middlewares/validation')
 
@@ -23,6 +23,9 @@ router.post('/posts/comment', verify, addComment)
 router.get('/' , verify , getAllUsers )
 router.put('/follow/:id',verify,followUser)
 router.put('/unfollow/:id',verify,unFollowUser)
+
+router.route('/profile/experience')
+    .post(verify,addExperience)
 
 
 module.exports = router
