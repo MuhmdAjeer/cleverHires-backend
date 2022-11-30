@@ -274,3 +274,14 @@ exports.addExperience = async (req, res) => {
         })
     }
 }
+
+exports.getProfile = async(req,res)=>{
+    try {
+        const userId = req.user.id;
+        const user = await userModel.findById(userId)
+        console.log(user);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({error : error.message})
+    }
+}
