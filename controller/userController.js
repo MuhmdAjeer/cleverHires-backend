@@ -226,13 +226,13 @@ exports.addExperience = async (req, res) => {
         } = req.body;
 
 
-        if(!companyName || !title || !location || !startMonth || !startYear  ){
+        if(!companyName || !title || !location || !startMonth || !startYear ){
             return res.status(400).json({
                 message : 'Provide full credentials'
             })
         }
 
-        if(currentRole == false && (!endYear || !endMonth)){
+        if(currentRole === false && (!endYear || !endMonth)){
             return res.status(400).json({
                 message : 'Provide full credentials',
                 fields : ['endYear','endMonth']
@@ -251,9 +251,7 @@ exports.addExperience = async (req, res) => {
 
         const {matchedCount , modifiedCount } = await userModel.updateOne({ _id: userId }, {
             $push: {
-                experiences: {
-                    experience
-                } 
+                experiences: experience 
             }
         })
 
@@ -278,10 +276,44 @@ exports.addExperience = async (req, res) => {
 exports.getProfile = async(req,res)=>{
     try {
         const userId = req.user.id;
-        const user = await userModel.findById(userId)
+        const username = req.params.username
+        console.log({username});
+        const user = await userModel.findOne({username : username}).select('-password')
+
+        if(!user){
+            return res.status(404).json({
+                message : 'No user found!'
+            })
+        }
+
         console.log(user);
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({error : error.message})
+    }
+}
+
+exports.updateAbout = async(req,res)=>{
+    try {
+        const userId = req.user.id;
+        const about = req.body.about;
+        console.log(req.body);
+        if(!about){
+            return res.status(400).json({
+                message : 'Provide about field'
+            })
+        }
+
+        const {modifiedCount} =  await userModel.updateOne({_id : userId},{
+            $set : { about : about}
+        })
+
+        return res.status(200).json({
+            message : 'about updated successfully'
+        })
+    } catch (error) {
+        res.status(500).json({
+            error : error.message
+        })
     }
 }

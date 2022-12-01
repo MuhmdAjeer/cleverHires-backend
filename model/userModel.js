@@ -21,9 +21,17 @@ const userModel = new schema(
             type: String,
             require: true,
         },
+        username : {
+            type : String,
+            required: true
+        },
         phone: {
             type: Number,
             require: true,
+        },
+        about : {
+            type : String,
+            default : ''
         },
         following : [{
             type : ObjectId,
@@ -50,12 +58,21 @@ const userModel = new schema(
             location : {
                 type : String
             },
+            currentRole : {
+                type : Boolean
+            },
             startMonth : {
                 type : String
             },
             startYear : {
                 type : String
             },
+            endMonth : {
+                type : String
+            },
+            endYear : {
+                type : String
+            }
             
         }]
     },
