@@ -59,6 +59,7 @@ const jobModel = new schema(
             {
                 seeker : {
                     type : ObjectId,
+                    ref : 'users',
                     required : true
                 },
                 email : {

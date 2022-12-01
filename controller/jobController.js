@@ -3,6 +3,7 @@ const { isValidObjectId } = require('mongoose')
 const Jobs = require('../database/jobs')
 const User = require('../database/user')
 const jobModel = require('../model/jobModel')
+const userModel = require('../model/userModel')
 
 exports.createHirer = async (req, res) => {
     const { id } = req.user
@@ -139,5 +140,38 @@ exports.applyJob = async(req,res) => {
         res.status(500).json({
             error : error.message
         })
+    }
+}
+
+exports.getUserJobs = async(req,res) => {
+    try {
+        const hirerId = req.user.id;
+        if(!isValidObjectId(hirerId)){
+            return res.status(400).json({message : 'Invalid userId passed'})
+        }
+        const jobs = await jobModel.find({hirer : hirerId}).select('-applications');
+        return res.status(200).json(jobs)
+
+    } catch (error) {
+        res.status(500).json({error : error.message})
+    }
+}
+
+exports.getJobApplications = async(req,res)=>{
+    try {
+        const jobId = req.params.jobId;
+        const userId = req.user.id
+        if(!isValidObjectId(jobId)){
+            return res.status(400).json({message : 'Invalid jobId'})
+        }
+        const job = await jobModel.findById(jobId).populate('applications.seeker')
+
+        if(!job) return res.status(404).json({message : 'No job found!'})
+        if(job.hirer != userId) return res.status(403).json({message : 'Cant access this job'})
+        
+        return res.status(200).json(job)
+
+    } catch (error) {
+        res.status(500).json({error:error.message})
     }
 }
