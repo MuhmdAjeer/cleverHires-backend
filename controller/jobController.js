@@ -82,7 +82,8 @@ exports.postJob = async (req, res) => {
 
 exports.getJobs = async (req, res) => {
     try {
-        const jobs = await jobModel.find().populate('hirer')
+        const userId = req.user.id
+        const jobs = await jobModel.find({hirer: { $nin: [userId] } }).populate('hirer')
 
         if (!jobs.length) {
             return res.status(404).json({
