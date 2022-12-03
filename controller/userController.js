@@ -317,3 +317,20 @@ exports.updateAbout = async(req,res)=>{
         })
     }
 }
+
+exports.updateProfileImage = async(req,res)=>{
+    try {
+        const userId = req.user.id
+        const {imageUrl} = req.body;
+        if(!imageUrl) return res.status(400).json({message:'Provide image url'})
+
+        await userModel.updateOne({_id : userId},{
+            profileImage : imageUrl
+        })
+        return res.status(200).json({
+            message : 'Profile pic updated'
+        })
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+}

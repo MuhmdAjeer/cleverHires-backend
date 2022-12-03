@@ -33,6 +33,10 @@ const userModel = new schema(
             type : String,
             default : ''
         },
+        profileImage: {
+            type : String,
+            default : ''
+        },
         following : [{
             type : ObjectId,
             ref : 'users',
