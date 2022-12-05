@@ -16,6 +16,7 @@ const { connection } = require('./config/connection')
 
 const userRouter = require('./router/user')
 const jobsRouter = require('./router/jobs')
+const adminRouter = require('./router/admin')
 
 const PORT = process.env.PORT || 5000
 
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use('/api/v1/user', userRouter)
 app.use('/api/v1/jobs', jobsRouter)
+app.use('/api/v1/admin',adminRouter)
 
 //not found
 app.use('*', (req, res) => {

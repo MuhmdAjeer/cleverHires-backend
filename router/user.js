@@ -21,7 +21,7 @@ router.patch('/posts/like', verify, likePost)
 router.post('/posts/comment', verify, addComment)
 
 //users
-router.get('/' , verify , getAllUsers )
+router.get('/', getAllUsers )
 router.put('/follow/:id',verify,followUser)
 router.put('/unfollow/:id',verify,unFollowUser)
 

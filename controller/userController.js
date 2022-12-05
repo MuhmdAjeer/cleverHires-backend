@@ -104,12 +104,12 @@ exports.deletePost = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
     try {
 
-        const userId = req.user.id;
-        const user = await userModel.findById(userId)
-        const requested = user.requested;
-        console.log([userId, user]);
+        // const userId = req.user.id;
+        // const user = await userModel.findById(userId)
+        // const requested = user.requested;
+        // console.log([userId, user]);
 
-        const users = await userModel.find({ _id: { $nin: [userId, requested] } })
+        const users = await userModel.find()
 
         return res.status(200).json(users)
     } catch (error) {
