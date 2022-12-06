@@ -52,6 +52,18 @@ const userModel = new schema(
             ref : 'users',
             default : []
         }],
+        blocked : {
+            type : Boolean,
+            default : false
+        },
+        hirer : {
+            type : Boolean,
+            default : false
+        },
+        hiring : {
+            type : Object,
+            default : null
+        },
         experiences : [{
             companyName : {
                 type : String

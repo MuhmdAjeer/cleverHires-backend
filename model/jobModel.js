@@ -55,6 +55,10 @@ const jobModel = new schema(
             type: Number,
             required: true,
         },
+        hidden : {
+            type : Boolean,
+            default : false
+        },
         applications : [
             {
                 seeker : {

@@ -5,24 +5,44 @@ const User = require('../database/user')
 const jobModel = require('../model/jobModel')
 const userModel = require('../model/userModel')
 
-exports.createHirer = async (req, res) => {
+exports.requestToBeHirer = async (req, res) => {
     const { id } = req.user
     const hirerDetails = req.body
+    console.log(hirerDetails);
 
     try {
-        const user = await User.findById(id)
+
+        const user = await userModel.findById(id);
         if (user.hiring) {
             return res.status(403).json({
                 message: 'already  applied to be a hirer',
             })
         }
-
-        await Jobs.createHirer(hirerDetails, id)
+        await user.updateOne({$set:{hiring : {...hirerDetails,approved : false}}},{multi:true})
         res.status(201).json({
-            message: 'Request to be a hirer has succesfully sended',
+            message: 'Request to be a hirer has successfully sended',
         })
     } catch (error) {
-        res.status(500)
+        res.status(500).json({error:error.message})
+    }
+}
+
+exports.approveHirer = async(req,res)=>{
+    try {
+        const userId = req.params.id
+        const user = await userModel.findById(userId);
+
+        // await userModel.updateMany({$set : {hirer : false}})
+        console.log(user);
+        
+        if(!user) return res.status(404).json({message:'No user found!'})
+
+        await user.updateOne({$set : {hirer : true}})
+        res.status(200).json({message:'Approved hirer'})
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error:error.message})
     }
 }
 
@@ -83,7 +103,7 @@ exports.postJob = async (req, res) => {
 exports.getJobs = async (req, res) => {
     try {
         const userId = req.user.id
-        const jobs = await jobModel.find({hirer: { $nin: [userId] } }).populate('hirer')
+        const jobs = await jobModel.find({hirer: { $nin: [userId] },hidden :false }).populate('hirer')
 
         if (!jobs.length) {
             return res.status(404).json({
