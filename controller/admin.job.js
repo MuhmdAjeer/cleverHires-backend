@@ -1,5 +1,6 @@
 const { isValidObjectId } = require("mongoose")
 const jobModel = require("../model/jobModel")
+const userModel = require("../model/userModel")
 
 exports.changeVisibility = async(req,res)=>{
     try {
@@ -35,8 +36,11 @@ exports.getJobs = async(req,res)=>{
 
 exports.getHirerRequests = async(req,res)=>{
     try {
-        const requests = job
+        const requests = await userModel.find({'hiring.approved':false})
+        res.status(200).json(requests);
     } catch (error) {
-        
+        res.status(500).json({
+            error : error.message
+        })
     }
 }
