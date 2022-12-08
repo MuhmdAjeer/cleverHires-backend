@@ -9,6 +9,7 @@ exports.uploadPost = async (req, res) => {
     const { image, description } = req.body
     try {
         //upload image to cloudinary
+        
         const result = await cloudinary.uploader.upload(image, {
             upload_preset: 'posts',
         })
@@ -16,6 +17,7 @@ exports.uploadPost = async (req, res) => {
         let post = {
             user: ObjectId(req.user.id),
             imageUrl: result.url,
+            description : description
         }
 
         let postId = await PostModel.create(post)

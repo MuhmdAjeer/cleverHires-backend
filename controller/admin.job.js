@@ -44,3 +44,60 @@ exports.getHirerRequests = async(req,res)=>{
         })
     }
 }
+
+exports.approveHirer = async(req,res)=>{
+    try {
+        const {hirerId} = req.params;
+        if(!isValidObjectId(hirerId)) return res.status(400).json({
+            message : 'Invalid HirerId'
+        })
+        const hirer = await userModel.findById(hirerId)
+        if(hirer.hirer){
+            return res.status(403).json({
+                message : 'Already a hirer!'
+            })
+        }
+        if(!hirer.hiring) return res.status(409).json({
+            message : 'User has not requested for being an hirer'
+        })
+
+        await hirer.update({$set : {hirer : true , 'hiring.approved' : true}})
+        res.status(200).json({
+            message : 'Approval success',
+            success : true
+        })
+    } catch (error) {
+        res.status(500).json({
+            error : error.message
+        })
+    }
+}
+
+exports.declineHirer = async(req,res)=>{
+    try {
+        const {hirerId} = req.params;
+        if(!isValidObjectId(hirerId)) return res.status(400).json({
+            message : 'Invalid HirerId'
+        })
+        const hirer = await userModel.findById(hirerId)
+        if(hirer.hirer){
+            return res.status(403).json({
+                message : 'Already a hirer!'
+            })
+        }
+        if(!hirer.hiring) return res.status(409).json({
+            message : 'User has not requested for being an hirer'
+        })
+
+        await hirer.update({$set : {'hiring.approved' : 'declined'}})
+        
+        res.status(200).json({
+            message : 'Declining success',
+            success : true
+        })
+    } catch (error) {
+        res.status(500).json({
+            error : error.message
+        })
+    }
+}
