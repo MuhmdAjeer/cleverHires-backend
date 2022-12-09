@@ -17,6 +17,8 @@ const { connection } = require('./config/connection')
 const userRouter = require('./router/user')
 const jobsRouter = require('./router/jobs')
 const adminRouter = require('./router/admin')
+const chatRouter = require('./router/chat')
+const messageRouter = require('./router/message')
 
 const PORT = process.env.PORT || 5000
 
@@ -30,9 +32,11 @@ app.use(logger('dev'))
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: false }))
 
-app.use('/api/v1/user', userRouter)
-app.use('/api/v1/jobs', jobsRouter)
-app.use('/api/v1/admin',adminRouter)
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/jobs', jobsRouter);
+app.use('/api/v1/admin',adminRouter);
+app.use('/api/v1/chat',chatRouter);
+app.use('/api/v1/message',messageRouter);
 
 // not found
 app.use('*', (req, res) => {

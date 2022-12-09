@@ -4,6 +4,7 @@ const { ObjectId } = require('mongodb')
 const PostModel = require('../model/postModel')
 const { isValidObjectId } = require('mongoose')
 const userModel = require('../model/userModel')
+const chatModel = require('../model/chatModel')
 
 exports.uploadPost = async (req, res) => {
     const { image, description } = req.body
@@ -123,6 +124,27 @@ exports.getAllUsers = async (req, res) => {
     }
 }
 
+exports.getUser = async(req,res)=>{
+    const {id} = req.params;
+    if(!isValidObjectId(id)){
+        return res.status(400).json({
+            message : 'Invalid User id'
+        })
+    }
+    try {
+        const user =  await  userModel.findById(id);
+        if(!user){
+            return res.status(404).json({
+                message : 'No user found!'
+            })
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({error : error.message})
+    }
+}
+
 exports.followUser = async (req, res) => {
     try {
         const followingId = req.params.id;
@@ -155,6 +177,10 @@ exports.followUser = async (req, res) => {
             userModel.updateOne({ _id: followingId }, {
                 $addToSet: { followers: userId }
             })])
+
+           await chatModel.create({
+                members : [followingId,userId]
+            })
 
         res.status(201).json({
             success: true,

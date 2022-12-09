@@ -11,7 +11,6 @@ exports.requestToBeHirer = async (req, res) => {
     console.log(hirerDetails);
 
     try {
-
         const user = await userModel.findById(id);
         if (user.hiring) {
             return res.status(403).json({
