@@ -178,9 +178,16 @@ exports.followUser = async (req, res) => {
                 $addToSet: { followers: userId }
             })])
 
-           await chatModel.create({
-                members : [followingId,userId]
+            const chat = await chatModel.findOne({
+                members : {$all  :[followingId,userId]}
             })
+
+            if(!chat){
+                await chatModel.create({
+                     members : [followingId,userId]
+                 })
+            }
+
 
         res.status(201).json({
             success: true,
