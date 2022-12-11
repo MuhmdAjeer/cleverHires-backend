@@ -121,6 +121,12 @@ exports.getJobs = async (req, res) => {
 exports.applyJob = async(req,res) => {
     try {
 
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            res.status(400)
+            return res.json({ errors: errors.array() })
+        }
+
         const {jobId} = req.params
         if(!isValidObjectId(jobId)) {
             return res.status(400).json({
@@ -129,7 +135,6 @@ exports.applyJob = async(req,res) => {
             })
         }
 
-        console.log(req.body);
         const { email,joiningTime,ctc,pdfUrl,phone } = req.body
         
         const application = {

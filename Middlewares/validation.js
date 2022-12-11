@@ -30,4 +30,36 @@ module.exports = {
             .isLength({ min: 10, max: 10 })
             .withMessage('Provide a valid phone number'),
     ],
+    validateJobAplication : [
+        // email,joiningTime,ctc,pdfUrl,phone
+        check('email')
+        .exists()
+        .withMessage('Email is required')
+        .isEmail().withMessage('Invalid Email'),
+
+        check('joiningTime')
+        .exists().withMessage('Joining Time is required')
+        .isNumeric().withMessage('Must be in days'),
+
+        check('ctc')
+        .exists().withMessage('CTC is required')
+        .isNumeric(),
+
+        check('pdfUrl')
+        .exists().withMessage('Must include resume')
+        .isURL('Invalid url'),
+
+        check('phone')
+        .exists()
+        .withMessage('phone cant be blank')
+        .isNumeric()
+        .withMessage('only numbers are allowed')
+        .isLength({ min: 10, max: 10 })
+        .withMessage('Provide a valid phone number'),
+
+
+
+        
+
+    ]
 }

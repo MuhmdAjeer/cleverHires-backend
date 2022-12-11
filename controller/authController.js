@@ -85,10 +85,14 @@ module.exports = {
                 password,
                 user.password
             )
+            if(user.blocked){
+                return res.status(403).json({ message : 'You are currently blocked for violating cleverHires Terms and conditions', })
+            }
 
             if (!isPasswordCorrect) {
                 return res.status(401).json({ message: 'Invalid password' })
             }
+
 
             const token = generateToken({
                 name: user.name,
