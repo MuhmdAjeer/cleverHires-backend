@@ -1,6 +1,6 @@
 {
-    "family": "",
-    "taskRoleArn": "",
+    "family": "container",
+    "taskRoleArn": "EC2",
     "executionRoleArn": "",
     "networkMode": "host",
     "containerDefinitions": [
