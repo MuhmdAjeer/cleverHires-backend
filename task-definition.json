@@ -78,7 +78,7 @@
             },
             "hostname": "",
             "user": "",
-            "workingDirectory": "",
+            "workingDirectory": "/app",
             "disableNetworking": true,
             "privileged": true,
             "readonlyRootFilesystem": true,
