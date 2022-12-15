@@ -25,5 +25,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: sudo docker stop $(docker ps -aq)
+    - run: sudo docker rm $(docker ps -aq)
     - run: sudo docker build -t server:v1 .
     - run: sudo docker run --rm -p 5000:5000 --name server server:v1
