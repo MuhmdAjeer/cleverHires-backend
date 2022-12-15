@@ -15,4 +15,4 @@ RUN npm install
 COPY . .
 
 # Starting our application
-CMD npm start
+CMD sudo pm2 start index.js --name=backend
