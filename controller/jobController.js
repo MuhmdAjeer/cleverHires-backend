@@ -12,9 +12,11 @@ exports.requestToBeHirer = async (req, res) => {
 
     try {
         const user = await userModel.findById(id);
+        console.log({hiring:user.hiring})
         if (user.hiring) {
             return res.status(403).json({
                 message: 'already  applied to be a hirer',
+                user : user
             })
         }
         await user.updateOne({$set:{hiring : {...hirerDetails,approved : false}}},{multi:true})
