@@ -18,10 +18,10 @@ exports.login = async(req,res)=>{
         if(!(await bcrypt.compare(password,admin.password))){
            return res.status(400).json({message : 'Invalid Password'})
         }
+        res.cookie('token',generateToken({admin:true}))
 
         res.status(200).json({
             message : 'Login successfull',
-            token : generateToken({admin:true})
         })
     } catch (error) {
         res.status(500).json({error:error.message})
@@ -56,4 +56,11 @@ exports.getAllUsers = async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 }
-
+exports.logout = async(req,res)=>{
+    try {
+        res.clearCookie()
+        res.end()
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}

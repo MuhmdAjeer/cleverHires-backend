@@ -13,10 +13,7 @@ router.put('/jobs/:id/visibility',changeVisibility)
 router.get('/jobs/hirer/requests',getHirerRequests)
 router.put('/jobs/hirer/requests/:hirerId/approve',approveHirer)
 router.put('/jobs/hirer/requests/:hirerId/decline',declineHirer)
-
-
-
-
+router.put('/logout',logout)
 
 
 
