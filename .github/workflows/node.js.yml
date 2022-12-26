@@ -6,6 +6,17 @@ name: Node.js CI
 on:
   push:
     branches: [ "main" ]
+env:
+  ## Sets environment variable
+  PORT: ${{secrets.PORT}}
+  DB_URI: ${{secrets.DB_URI}} 
+  USER_EMAIL: ${{secrets.USER_EMAIL}} 
+  APP_PASSWORD: ${{secrets.APP_PASSWORD}} 
+  JWT_SECRET: ${{secrets.JWT_SECRET}} 
+  CLOUDINARY_NAME: ${{secrets.CLOUDINARY_NAME}}
+  CLOUDINARY_API_KEY: ${{secrets.CLOUDINARY_API_KEY}} 
+  CLOUDINARY_API_SECRET: ${{secrets.CLOUDINARY_API_SECRET}} 
+
 
 
 jobs:
